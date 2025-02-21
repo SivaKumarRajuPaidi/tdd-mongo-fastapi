@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 from bson import ObjectId
@@ -16,12 +16,12 @@ class Item(BaseModel):
     description: str
 
 @app.post("/items/")
-async def create_item(item: Item):
+async def create_item(item: Item, db = Depends(get_db)):
     result = await db.items.insert_one(item.model_dump())
     return {"id": str(result.inserted_id)}
 
 @app.get("/items/{item_id}")
-async def read_item(item_id: str):
+async def read_item(item_id: str, db = Depends(get_db)):
     item = await db.items.find_one({"_id": ObjectId(item_id)})
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
