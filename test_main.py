@@ -4,16 +4,16 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import pytest
 from bson import ObjectId
+from mongodb import MongoDB
 from main import app, get_db
 from motor.motor_asyncio import AsyncIOMotorClient
 from httpx import AsyncClient, ASGITransport
 
 @pytest.fixture(scope="module")
 async def test_db():
-    client = AsyncIOMotorClient("mongodb://localhost:27017")
-    test_db = client.exp_test_database
-    yield test_db
-    client.drop_database("exp_test_database")
+    test_mongodb = MongoDB("mongodb://localhost:27017", "exp_test_database")
+    yield test_mongodb.get_db()
+    # test_mongodb.client.drop_database("exp_test_database")
 
 @pytest.fixture
 async def async_client(test_db):

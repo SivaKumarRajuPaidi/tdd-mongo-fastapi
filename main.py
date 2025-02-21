@@ -1,15 +1,12 @@
 from fastapi import FastAPI, HTTPException, Depends
-from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 from bson import ObjectId
+from mongodb import lifespan, mongodb
 
-app = FastAPI()
-
-client = AsyncIOMotorClient("mongodb://localhost:27017")
-db = client.exp_dev_database
+app = FastAPI(lifespan=lifespan)
 
 def get_db():
-    return db
+    return mongodb.get_db()
 
 class Item(BaseModel):
     name: str
